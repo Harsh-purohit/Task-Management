@@ -1,7 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectDB from "./config/db.js";
+import connectDB from "./src/config/db.js";
+import authRoutes from "./src/routes/auth.js";
+import allusersRoutes from "./src/routes/admin.js";
 
 const app = express();
 dotenv.config();
@@ -9,9 +11,12 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", allusersRoutes);
+
 const PORT = process.env.PORT || 3000;
 
-connectDB()
+connectDB(process.env.MONGO_URI)
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
