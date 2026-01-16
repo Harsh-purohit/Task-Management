@@ -31,6 +31,16 @@ const projectsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  tasks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tasks",
+    },
+  ],
 });
 const Projects = mongoose.model("Projects", projectsSchema);
 

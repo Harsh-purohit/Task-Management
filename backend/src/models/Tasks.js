@@ -1,12 +1,20 @@
 import mongoose from "mongoose";
 
 const tasksSchema = new mongoose.Schema({
-  // Reference to the User assigned to the task
-  userRef: {
+  projectRef: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Projects",
     required: true,
   },
+
+  // Reference to the User assigned to the task
+  users: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  ],
 
   // Reference to the Admin who created the task
   adminRef: {
@@ -29,7 +37,11 @@ const tasksSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: true,
+    // required: true,
+    default: Date.now,
+  },
+  updateDate: {
+    type: Date,
     default: Date.now,
   },
   endDate: {
@@ -37,14 +49,10 @@ const tasksSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
-  dueDate: {
-    type: Date,
-    required: true,
-  },
   priority: {
     type: String,
     enum: ["Low", "Medium", "High"],
-    default: "Low",
+    required: true,
   },
   comments: [
     {

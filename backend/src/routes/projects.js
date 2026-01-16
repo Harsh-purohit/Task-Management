@@ -1,5 +1,5 @@
 import express from "express";
-import { adminAuth, userAuth } from "../middleware/checkAuth.js";
+import { adminAuth, userAuth, bothAuth } from "../middleware/checkAuth.js";
 import Projects from "../models/Projects.js";
 
 const router = express.Router();
@@ -30,9 +30,11 @@ router.post("/", adminAuth, async (req, res) => {
   }
 });
 
-router.get("/", adminAuth, async (req, res) => {
+router.get("/", bothAuth, async (req, res) => {
   try {
+    // console.log("User ID:", req.userId);
     const projects = await Projects.find({});
+    // console.log("Fetched Projects:", projects);
     res.status(200).json(projects);
   } catch (err) {
     console.error(err);

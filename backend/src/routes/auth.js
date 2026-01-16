@@ -65,7 +65,10 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "email & password required" });
 
     const user_or_admin =
-      (await User.findOne({ email })) || (await Admin.findOne({ email }));
+      (await User.findOne({ email, isDeleted: false })) ||
+      (await Admin.findOne({ email }));
+    // console.log(user_or_admin);
+
     if (!user_or_admin)
       return res.status(400).json({ message: "Invalid credentials" });
 
