@@ -39,7 +39,7 @@ router.post("/", adminAuth, async (req, res) => {
       isDeleted: false,
     }).select("name email");
 
-    // 🔔 Send email (non-blocking)
+    // Send email (non-blocking)
     usersList.forEach((user) => {
       sendEmail({
         to: user.email,
