@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.text-primary {
+  @apply bg-linear-to-r from-blue-500 to-green-500 bg-clip-text text-transparent;
+}
