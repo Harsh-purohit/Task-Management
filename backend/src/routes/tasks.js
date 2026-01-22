@@ -68,13 +68,13 @@ router.post("/", adminAuth, async (req, res) => {
 
 router.get("/", bothAuth, async (req, res) => {
   try {
-    const { projectRef, users, status, priority } = req.query;
+    const { id, users, status, priority } = req.query;
     const filter = {};
 
     // console.log("QUERY PARAMS 👉", req.query);
 
-    if (projectRef) {
-      filter.projectRef = new mongoose.Types.ObjectId(projectRef);
+    if (id) {
+      filter.projectRef = new mongoose.Types.ObjectId(id);
     }
 
     if (users) {
@@ -93,8 +93,45 @@ router.get("/", bothAuth, async (req, res) => {
     }
 
     const tasks = await Tasks.find(filter);
-    console.log("FILTER USED 👉", filter);
-    console.log("TASKS 👉", tasks);
+    // console.log("FILTER USED 👉", filter);
+    // console.log("TASKS 👉", tasks);
+    res.status(200).json(tasks);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/:id", bothAuth, async (req, res) => {
+  try {
+    const { users, status, priority } = req.query;
+    const { id } = req.params;
+    const filter = {};
+
+    console.log("QUERY PARAMS 👉", req.query);
+
+    if (id) {
+      filter.projectRef = new mongoose.Types.ObjectId(id);
+    }
+
+    if (users) {
+      const userArray = Array.isArray(users) ? users : [users];
+      filter.users = {
+        $in: userArray.map((id) => new mongoose.Types.ObjectId(id)),
+      };
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    const tasks = await Tasks.find(filter);
+    // console.log("FILTER USED 👉", filter);
+    // console.log("TASKS 👉", tasks);
     res.status(200).json(tasks);
   } catch (err) {
     console.error(err);
@@ -113,7 +150,7 @@ router.put("/:id", adminAuth, async (req, res) => {
     // 1️⃣ Fetch existing task
     const existingTask = await Tasks.findById(id).populate(
       "users",
-      "name email"
+      "name email",
     );
 
     if (!existingTask) {
@@ -150,7 +187,7 @@ router.put("/:id", adminAuth, async (req, res) => {
     const updatedTask = await Tasks.findByIdAndUpdate(
       id,
       { $set: update },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     // 4️⃣ Detect changes

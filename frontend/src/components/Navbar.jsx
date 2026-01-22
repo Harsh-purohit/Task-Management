@@ -15,7 +15,7 @@ const Navbar = () => {
   const userName = useSelector((state) => state.auth.user?.name);
   const [sidebar, setSidebar] = useState(false);
 
-  console.log(userName);
+  // console.log(userName);
 
   return (
     <div className="flex justify-between items-center py-4">
@@ -29,7 +29,7 @@ const Navbar = () => {
           />
           {sidebar && (
             <div className="absolute top-30 left-0 w-50 h-73 bg-[#F9FAFB] rounded-lg shadow-lg z-10">
-              <Sidebar />
+              <Sidebar setOpen={setSidebar} />
             </div>
           )}
         </div>

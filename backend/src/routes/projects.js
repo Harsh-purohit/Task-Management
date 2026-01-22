@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/", adminAuth, async (req, res) => {
   try {
+    console.log(req.body);
     const { name, description, status, userRef } = req.body;
     const adminRef = req.userId;
 

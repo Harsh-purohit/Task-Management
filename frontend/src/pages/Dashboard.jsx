@@ -1,11 +1,14 @@
 import StatsCards from "../components/Dashboard/StatsCards";
 import TodayTasks from "../components/Dashboard/TodayTasks";
+import { useSelector } from "react-redux";
 // import RecentActivity from "../components/dashboard/RecentActivity";
 
 const Dashboard = () => {
+  const userName = useSelector((state) => state.auth.user?.name);
+
   return (
-    <div className="py-10 space-y-10">
-      <h1 className="text-2xl font-semibold">Hello 👋</h1>
+    <div className="py-10 space-y-10 min-h-screen">
+      <h1 className="text-2xl font-semibold">Hello, {userName}👋</h1>
 
       <StatsCards />
 

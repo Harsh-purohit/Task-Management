@@ -7,6 +7,8 @@ import Auth from "./components/Auth";
 import { useSelector } from "react-redux";
 import PrivateRoute from "./routes/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 
 const App = () => {
   const mode = useSelector((state) => state.login.mode);
@@ -20,8 +22,23 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/project" element={<Project />} /> */}
-        {/* <Route path="/tasks" element={<Tasks />} /> */}
+        <Route
+          path="/projects"
+          element={
+            <PrivateRoute>
+              <Projects />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard/projects/:id"
+          element={
+            <PrivateRoute>
+              <ProjectDetails />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/dashboard"
           element={

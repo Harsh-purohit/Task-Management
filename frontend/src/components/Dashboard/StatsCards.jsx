@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo, clearUserInfo } from "../../features/userInfoSlice";
 import axios from "axios";
+import { setProjects } from "../../features/projectSlice";
 
 const StatsCards = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,10 @@ const StatsCards = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
+        if (!token) {
+          alert("Please login again");
+          return;
+        }
         const [tasksRes, projectsRes] = await Promise.all([
           axios.get(`${BACKEND_URL}/api/tasks`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -25,10 +30,10 @@ const StatsCards = () => {
           }),
         ]);
 
-        console.log("Fetched user info:", {
-          tasks: tasksRes.data,
-          projects: projectsRes.data,
-        });
+        // console.log("Fetched user info:", {
+        //   tasks: tasksRes.data,
+        //   projects: projectsRes.data,
+        // });
 
         dispatch(
           setUserInfo({
@@ -36,6 +41,7 @@ const StatsCards = () => {
             projects: projectsRes.data,
           }),
         );
+        dispatch(setProjects(projectsRes.data));
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       }
