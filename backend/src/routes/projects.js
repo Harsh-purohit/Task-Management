@@ -3,6 +3,8 @@ import { adminAuth, userAuth, bothAuth } from "../middleware/checkAuth.js";
 import Projects from "../models/Projects.js";
 import Tasks from "../models/Tasks.js";
 import { logActivity } from "../utils/logActivity.js";
+import mongoose from "mongoose";
+
 
 const router = express.Router();
 
@@ -104,11 +106,11 @@ router.put("/:id", adminAuth, async (req, res) => {
 
     ["name", "description", "status"].forEach((field) => {
       if (req.body[field] !== undefined && req.body[field] !== oldData[field]) {
-        changes.push(`${field}: ${oldData[field]} → ${updatedProject[field]}`);
+        changes.push(`${field}: ${oldData[field]} → ${projects[field]}`);
 
         metadata[field] = {
           from: oldData[field],
-          to: updatedProject[field],
+          to: projects[field],
         };
       }
     });
@@ -121,8 +123,8 @@ router.put("/:id", adminAuth, async (req, res) => {
         role: "admin",
         action: "project-updated",
         entity: "project",
-        entityId: updatedProject._id,
-        message: `Updated project "${updatedProject.name}" (${changes.join(
+        entityId: projects._id,
+        message: `Updated project "${projects.name}" (${changes.join(
           ", ",
         )})`,
         metadata,

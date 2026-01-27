@@ -134,7 +134,7 @@ const ProjectModal = ({ onClose, project }) => {
         >
           <option value="">Assign Member</option>
           {allusers.map((user) => (
-            <option key={user._id} value={user._id}>
+            <option className="border-b" key={user._id} value={user._id}>
               {user.name}
             </option>
           ))}

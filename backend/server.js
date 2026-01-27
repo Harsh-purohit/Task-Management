@@ -8,6 +8,7 @@ import projectRoutes from "./src/routes/projects.js";
 import taskRoutes from "./src/routes/tasks.js";
 import userRoutes from "./src/routes/user.js";
 import cookieParser from "cookie-parser";
+import activityLogs from "./src/routes/activity.js";
 dotenv.config();
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/api/admin", allusersRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/activity", activityLogs);
 
 const PORT = process.env.PORT || 3000;
 

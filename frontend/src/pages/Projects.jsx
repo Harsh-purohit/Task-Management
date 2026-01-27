@@ -6,6 +6,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faClockFour } from "@fortawesome/free-regular-svg-icons";
+import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import ActivityTimeline from "../components/ActivityTimeline";
 
 const Projects = () => {
   const dispatch = useDispatch();
@@ -15,6 +18,7 @@ const Projects = () => {
   // console.log("proj: ", projects);
 
   const [showModal, setShowModal] = useState(false);
+  const [activeLogProject, setActiveLogProject] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
 
   const url = import.meta.env.VITE_BACKEND_URL;
@@ -65,12 +69,33 @@ const Projects = () => {
               key={project._id}
               className="bg-white p-6 rounded-xl shadow-sm hover:scale-105 transition-transform cursor-pointer"
             >
-              <h3
-                className="text-lg font-medium cursor-pointer"
-                onClick={() => navigate(`/dashboard/projects/${project._id}`)}
-              >
-                {project.name || project.title}
-              </h3>
+              <div className="flex justify-between">
+                <h3
+                  className="text-lg font-medium cursor-pointer"
+                  onClick={() => navigate(`/dashboard/projects/${project._id}`)}
+                >
+                  {project.name || project.title}
+                </h3>
+
+                <button
+                  onClick={() =>
+                    setActiveLogProject(
+                      activeLogProject === project._id ? null : project._id,
+                    )
+                  }
+                  className="cursor-pointer"
+                >
+                  <FontAwesomeIcon
+                    icon={faClockRotateLeft}
+                    size="lg"
+                    style={{ color: "#63E6BE" }}
+                  />
+                </button>
+              </div>
+
+              {activeLogProject === project._id && (
+                <ActivityTimeline id={project._id} />
+              )}
 
               <p className="text-sm text-gray-500 mt-1">
                 {project.description || "No description"}
