@@ -17,7 +17,7 @@ const useAllUsers = () => {
         withCredentials: true,
       });
 
-      //   console.log("all users", response.data.users);
+      // console.log("all users", response.data.users);
 
       if (response.status === 200) {
         dispatch(setAllusers(response.data.users));

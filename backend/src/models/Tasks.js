@@ -1,85 +1,85 @@
 import mongoose from "mongoose";
 
-const tasksSchema = new mongoose.Schema({
-  projectRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Projects",
-    required: true,
-  },
-
-  // Reference to the User assigned to the task
-  users: [
-    {
+const tasksSchema = new mongoose.Schema(
+  {
+    projectRef: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Projects",
       required: true,
     },
-  ],
 
-  // Reference to the Admin who created the task
-  adminRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Admin",
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["Todo", "In Progress", "Completed"],
-    default: "Todo",
-  },
-  startDate: {
-    type: Date,
-    // required: true,
-    default: Date.now,
-  },
-  updateDate: {
-    type: Date,
-    default: Date.now,
-  },
-  endDate: {
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
-  priority: {
-    type: String,
-    enum: ["Low", "Medium", "High"],
-    required: true,
-  },
-  comments: [
-    {
-      commenter: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Admin",
-        },
-      ],
-      comment: {
-        type: String,
+    // Reference to the User assigned to the task
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
       },
-      commentedAt: {
-        type: Date,
-        default: Date.now,
-      },
+    ],
+
+    // Reference to the Admin who created the task
+    adminRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["Todo", "In Progress", "Completed"],
+      default: "Todo",
+    },
+    startDate: {
+      type: Date,
+      // required: true,
+      default: Date.now,
+    },
+    updateDate: {
+      type: Date,
+      default: Date.now,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    priority: {
+      type: String,
+      enum: ["Low", "Medium", "High"],
+      required: true,
+    },
+    comments: [
+      {
+        commenter: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          refPath: "comments.commenterModel",
+        },
+        commenterModel: {
+          type: String,
+          required: true,
+          enum: ["User", "Admin"],
+        },
+        comment: {
+          type: String,
+          required: true,
+        },
+        commentedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
-});
+  { timestamps: { createdAt: true, updatedAt: "updateDate" } },
+);
 const Tasks = mongoose.model("Tasks", tasksSchema);
 
 export default Tasks;

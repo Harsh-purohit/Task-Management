@@ -4,6 +4,7 @@ import { adminAuth, bothAuth } from "../middleware/checkAuth.js";
 import Tasks from "../models/Tasks.js";
 import sendEmail from "../utils/sendEmail.js";
 import User from "../models/User.js";
+import { logActivity } from "../utils/logActivity.js";
 
 const router = express.Router();
 
@@ -31,6 +32,15 @@ router.post("/", adminAuth, async (req, res) => {
       description,
       endDate: new Date(endDate),
       priority,
+    });
+
+    await logActivity({
+      userId: req.userId,
+      role: req.role,
+      action: "created",
+      entity: "task",
+      entityId: newTask._id,
+      message: `Created task "${newTask.title}"`,
     });
 
     // Fetch user emails
@@ -111,13 +121,20 @@ router.get("/:id", bothAuth, async (req, res) => {
     // console.log("QUERY PARAMS 👉", req.query);
 
     if (id) {
-      filter.projectRef = new mongoose.Types.ObjectId(id);
+      req.role === "admin"
+        ? (filter.projectRef = new mongoose.Types.ObjectId(id))
+        : (filter._id = new mongoose.Types.ObjectId(id));
     }
 
     if (users) {
       const userArray = Array.isArray(users) ? users : [users];
       filter.users = {
         $in: userArray.map((id) => new mongoose.Types.ObjectId(id)),
+      };
+    }
+    if (req.role === "user") {
+      filter.users = {
+        $in: [new mongoose.Types.ObjectId(req.userId)],
       };
     }
 
@@ -168,7 +185,6 @@ router.put("/:id", adminAuth, async (req, res) => {
       "description",
       "status",
       "priority",
-      "comments",
     ];
 
     for (const field of allowedFields) {
@@ -196,7 +212,40 @@ router.put("/:id", adminAuth, async (req, res) => {
     const priorityChanged =
       req.body.priority && req.body.priority !== oldPriority;
 
-    // 5️⃣ Send email ONLY if status or priority changed
+    // 5️⃣ 🔥 Activity Logs
+    if (statusChanged || priorityChanged) {
+      let changes = [];
+      let metadata = {};
+
+      if (statusChanged) {
+        changes.push(`Status: ${oldStatus} → ${updatedTask.status}`);
+        metadata.status = {
+          from: oldStatus,
+          to: updatedTask.status,
+        };
+      }
+
+      if (priorityChanged) {
+        changes.push(`Priority: ${oldPriority} → ${updatedTask.priority}`);
+        metadata.priority = {
+          from: oldPriority,
+          to: updatedTask.priority,
+        };
+      }
+
+      await logActivity({
+        actorId: req.userId, // admin id
+        actorModel: "Admin", // 🔥 important
+        role: "admin",
+        action: "task-updated",
+        entity: "task",
+        entityId: updatedTask._id,
+        message: `Updated task "${updatedTask.title}" (${changes.join(", ")})`,
+        metadata,
+      });
+    }
+
+    // 6️⃣ Send email ONLY if status or priority changed
     if (statusChanged || priorityChanged) {
       existingTask.users.forEach((user) => {
         sendEmail({
@@ -229,6 +278,49 @@ router.put("/:id", adminAuth, async (req, res) => {
   }
 });
 
+router.post("/:id/comment", bothAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid task ID" });
+    }
+
+    if (!comment || !comment.trim()) {
+      return res.status(400).json({ message: "Comment is required" });
+    }
+
+    const task = await Tasks.findById(id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // 🔥 detect who is logged in (from bothAuth)
+    const commenterModel = req.role === "admin" ? "Admin" : "User";
+
+    task.comments.push({
+      commenter: req.userId,
+      commenterModel,
+      comment,
+    });
+
+    await task.save();
+
+    await task.populate("comments.commenter");
+
+    // console.log(task);
+
+    res.status(201).json({
+      message: "Comment added successfully",
+      task,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.delete("/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -236,11 +328,33 @@ router.delete("/:id", adminAuth, async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid task ID" });
     }
-    const task = await Tasks.findByIdAndDelete(id);
 
+    // Fetch task BEFORE delete (important for logs)
+    const task = await Tasks.findById(id).populate("projectRef", "name");
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    // Delete
+    await Tasks.findByIdAndDelete(id);
+
+    // Activity Log
+    await logActivity({
+      actorId: req.userId,
+      actorModel: "Admin",
+      role: "admin",
+      action: "task-deleted",
+      entity: "task",
+      entityId: id,
+      message: `Deleted task "${task.title}"${
+        task.projectRef ? ` from project "${task.projectRef.name}"` : ""
+      }`,
+      metadata: {
+        title: task.title,
+        project: task.projectRef?._id,
+      },
+    });
+
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {
     console.error(err);

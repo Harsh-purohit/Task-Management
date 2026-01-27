@@ -4,11 +4,15 @@ import { removeProject } from "../features/projectSlice";
 import ProjectModal from "../components/Projects/ProjectModal";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 
 const Projects = () => {
   const dispatch = useDispatch();
   const projects = useSelector((state) => state.projects.projects);
   const navigate = useNavigate();
+
+  // console.log("proj: ", projects);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -65,7 +69,7 @@ const Projects = () => {
                 className="text-lg font-medium cursor-pointer"
                 onClick={() => navigate(`/dashboard/projects/${project._id}`)}
               >
-                {project.name}
+                {project.name || project.title}
               </h3>
 
               <p className="text-sm text-gray-500 mt-1">
@@ -77,14 +81,22 @@ const Projects = () => {
                   onClick={() => setSelectedProject(project)}
                   className="text-blue-600 hover:underline cursor-pointer"
                 >
-                  Edit
+                  <FontAwesomeIcon
+                    icon={faPenToSquare}
+                    // style={{ color: "#0000ff" }}
+                    size="lg"
+                  />
                 </button>
 
                 <button
                   onClick={deleteProject.bind(null, project._id)}
                   className="text-red-500 hover:underline cursor-pointer"
                 >
-                  Delete
+                  <FontAwesomeIcon
+                    icon={faTrashCan}
+                    // style={{ color: "#ff0000" }}
+                    size="lg"
+                  />
                 </button>
               </div>
             </div>
