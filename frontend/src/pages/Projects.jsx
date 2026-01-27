@@ -1,14 +1,15 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
-import { removeProject } from "../features/projectSlice";
+import { removeProject, setProjects } from "../features/projectSlice";
 import ProjectModal from "../components/Projects/ProjectModal";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import { faClockFour } from "@fortawesome/free-regular-svg-icons";
 import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import ActivityTimeline from "../components/ActivityTimeline";
+import toast from "react-hot-toast";
+import { notify } from "../utils/toast";
 
 const Projects = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,25 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
 
   const url = import.meta.env.VITE_BACKEND_URL;
+
+  const updateField = async (projectId, field, value) => {
+    try {
+      const { data } = await axios.put(
+        `${url}/api/projects/${projectId}`,
+        { [field]: value },
+        { withCredentials: true },
+      );
+
+      dispatch(
+        setProjects(projects.map((p) => (p._id === projectId ? data : p))),
+      );
+
+      notify.success(`${field} updated`);
+    } catch {
+      notify.error("Unauthorized Access, Only Admin can change!!");
+      notify.error("Update failed");
+    }
+  };
 
   const deleteProject = async (id) => {
     try {
@@ -40,9 +60,10 @@ const Projects = () => {
 
       // console.log(response);
       dispatch(removeProject(id));
+      notify.success("Project Deleted!!");
     } catch (error) {
-      console.log(error);
-      alert(error.response?.data?.message || "Something went wrong");
+      // console.log(error);
+      notify.error(error.response?.data?.message || "Something went wrong");
     }
   };
   return (
@@ -63,11 +84,22 @@ const Projects = () => {
           No projects yet. Create your first project 🚀
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start
+"
+        >
           {projects.map((project) => (
             <div
               key={project._id}
-              className="bg-white p-6 rounded-xl shadow-sm hover:scale-105 transition-transform cursor-pointer"
+              className={`
+    bg-white p-6 rounded-xl shadow-sm cursor-pointer
+    transition-all duration-300 ease-in-out
+    ${
+      activeLogProject === project._id
+        ? "min-h-[420px] scale-[1.02] shadow-lg"
+        : "min-h-[180px]"
+    }
+  `}
             >
               <div className="flex justify-between">
                 <h3
@@ -94,12 +126,34 @@ const Projects = () => {
               </div>
 
               {activeLogProject === project._id && (
-                <ActivityTimeline id={project._id} />
+                <div className="mt-4 animate-fadeIn">
+                  <ActivityTimeline id={project._id} />
+                </div>
               )}
 
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-2">
                 {project.description || "No description"}
               </p>
+
+              {/* STATUS */}
+              <select
+                value={project.status}
+                onChange={(e) =>
+                  updateField(project._id, "status", e.target.value)
+                }
+                className={`px-2 py-1 mt-3 rounded-full text-xs font-medium border cursor-pointer outline-none
+            ${
+              project.status === "Todo"
+                ? "bg-gray-100 text-gray-600"
+                : project.status === "In Progress"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-green-100 text-green-700"
+            }`}
+              >
+                <option>Todo</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
 
               <div className="flex gap-4 mt-4 text-sm">
                 <button

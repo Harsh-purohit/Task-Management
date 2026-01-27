@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo, clearUserInfo } from "../../features/userInfoSlice";
 import axios from "axios";
 import { setProjects } from "../../features/projectSlice";
+import { notify } from "../../utils/toast";
 
 const StatsCards = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const StatsCards = () => {
         );
         dispatch(setProjects(projectsRes.data));
       } catch (error) {
+        notify.error("Failed to fetch details");
         console.error("Failed to fetch user info:", error);
       }
     };

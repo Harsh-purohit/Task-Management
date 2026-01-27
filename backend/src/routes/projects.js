@@ -47,7 +47,7 @@ router.post("/", adminAuth, async (req, res) => {
 
 router.get("/", bothAuth, async (req, res) => {
   try {
-    // console.log("User ID:", req.userId);
+    console.log("User ID:", req.userId);
 
     const projects =
       req.role === "admin"
@@ -55,11 +55,11 @@ router.get("/", bothAuth, async (req, res) => {
         : await Projects.find({ userRef: req.userId });
 
     if (projects.length === 0 && req.role !== "admin") {
-      const userProj = await Tasks.find({ users: req.userId });
-      // console.log(userProj);
+      const userProj = await Tasks.find({ assignedTo: req.userId });
+      console.log(userProj);
       return res.status(200).json(userProj);
     }
-    // console.log("Fetched Projects:", projects);
+    console.log("Fetched Projects:", projects);
     return res.status(200).json(projects);
   } catch (err) {
     console.error(err);

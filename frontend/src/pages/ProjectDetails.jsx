@@ -11,11 +11,17 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TaskModal from "../components/Tasks/TaskModal";
 import toast from "react-hot-toast";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { notify } from "../utils/toast";
+
+dayjs.extend(relativeTime);
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
+  const users = useSelector((state) => state.allusers.allusers || []);
   const tasks = useSelector((state) => state.tasks.tasks);
 
   // console.log("task: ", tasks);
@@ -27,6 +33,14 @@ const ProjectDetails = () => {
   const [selectedTask, setSelectedTask] = useState("");
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  // console.log("users:   ", users);
+  const getUserName = (id) => {
+    // console.log(id);
+    const user = users.find((u) => u._id === id);
+
+    // console.log("-------", user);
+    return user ? user.name : "Unknown";
+  };
 
   // -----------------------------
   // Delete
@@ -39,6 +53,7 @@ const ProjectDetails = () => {
     });
 
     dispatch(removeTask(taskId));
+    notify.success("Task Deleted!!");
   };
 
   // -----------------------------
@@ -54,10 +69,10 @@ const ProjectDetails = () => {
 
       dispatch(setTasks(tasks.map((t) => (t._id === taskId ? data : t))));
 
-      toast.success(`${field} updated`);
+      notify.success(`${field} updated`);
     } catch {
-      alert("Unauthorized Access, Only Admin can change!!");
-      toast.error("Update failed");
+      notify.error("Unauthorized Access, Only Admin can change!!");
+      notify.error("Update failed");
     }
   };
 
@@ -77,9 +92,9 @@ const ProjectDetails = () => {
       dispatch(setTasks(tasks.map((t) => (t._id === taskId ? data.task : t))));
 
       setNewComment("");
-      toast.success("Comment added");
+      notify.success("Comment added");
     } catch {
-      toast.error("Failed to add comment");
+      notify.error("Failed to add comment");
     }
   };
 
@@ -92,7 +107,7 @@ const ProjectDetails = () => {
         withCredentials: true,
       });
 
-      // console.log(data);
+      console.log(data);
 
       dispatch(setTasks(data));
     };
@@ -171,6 +186,22 @@ const ProjectDetails = () => {
                 {task.description}
               </p>
 
+              {/* <p className="text-xs text-gray-500 mt-2">
+                Created by:{" "}
+                <span className="font-medium text-primary">
+                  {getUserName(task.createdBy)}
+                </span>
+              </p> */}
+
+              <p className="text-xs text-gray-500 mt-2">
+                Assigned to:{" "}
+                {task.assignedTo?.length
+                  ? task.assignedTo
+                      .map((u) => u.name || getUserName(u))
+                      .join(", ")
+                  : "Unassigned"}
+              </p>
+
               {/* ---------------- Controls Row ---------------- */}
               <div className="flex gap-3 mt-4">
                 {/* STATUS */}
@@ -246,9 +277,23 @@ const ProjectDetails = () => {
                     {task.comments.map((c, i) => (
                       <div
                         key={i}
-                        className="bg-gray-50 p-2 rounded-lg text-xs"
+                        className="bg-gray-50 p-3 rounded-lg text-xs"
                       >
-                        {c.comment}
+                        <div className="flex justify-between items-center text-gray-500 mb-1">
+                          <span className="font-semibold">
+                            {c.userRef?.name}
+                          </span>
+
+                          <span
+                            title={dayjs(c.commentedAt).format(
+                              "DD MMM YYYY hh:mm A",
+                            )}
+                          >
+                            {dayjs(c.commentedAt).fromNow()}
+                          </span>
+                        </div>
+
+                        <p className="text-gray-700">{c.comment}</p>
                       </div>
                     ))}
                   </div>

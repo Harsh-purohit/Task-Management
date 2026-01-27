@@ -9,6 +9,9 @@ import PrivateRoute from "./routes/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
+import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const mode = useSelector((state) => state.login.mode);
@@ -16,10 +19,22 @@ const App = () => {
 
   return (
     <div className="px-2 sm:px-4 md:px-8 lg:px-10 min-h-screen bg-[#F9FAFB]">
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 2000,
+          style: {
+            borderRadius: "10px",
+            background: "#1f2937",
+            color: "#fff",
+            fontSize: "14px",
+          },
+        }}
+      />
+      
       <Navbar />
-
       {mode && <Auth />}
-
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
@@ -48,8 +63,8 @@ const App = () => {
           }
         />
       </Routes>
-
       <Footer />
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 };

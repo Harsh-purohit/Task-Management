@@ -25,9 +25,9 @@ router.post("/", adminAuth, async (req, res) => {
     }
 
     const newTask = await Tasks.create({
-      users,
+      assignedTo: users,
       projectRef,
-      adminRef: req.userId,
+      createdBy: req.userId,
       title,
       description,
       endDate: new Date(endDate),
@@ -89,7 +89,7 @@ router.get("/", bothAuth, async (req, res) => {
 
     if (users) {
       const userArray = Array.isArray(users) ? users : [users];
-      filter.users = {
+      filter.assignedTo = {
         $in: userArray.map((id) => new mongoose.Types.ObjectId(id)),
       };
     }
@@ -128,12 +128,12 @@ router.get("/:id", bothAuth, async (req, res) => {
 
     if (users) {
       const userArray = Array.isArray(users) ? users : [users];
-      filter.users = {
+      filter.assignedTo = {
         $in: userArray.map((id) => new mongoose.Types.ObjectId(id)),
       };
     }
     if (req.role === "user") {
-      filter.users = {
+      filter.assignedTo = {
         $in: [new mongoose.Types.ObjectId(req.userId)],
       };
     }
@@ -146,7 +146,7 @@ router.get("/:id", bothAuth, async (req, res) => {
       filter.priority = priority;
     }
 
-    const tasks = await Tasks.find(filter);
+    const tasks = await Tasks.find(filter).sort({ createdAt: -1 });
     // console.log("FILTER USED 👉", filter);
     // console.log("TASKS 👉", tasks);
     res.status(200).json(tasks);
@@ -166,7 +166,7 @@ router.put("/:id", adminAuth, async (req, res) => {
 
     // 1️⃣ Fetch existing task
     const existingTask = await Tasks.findById(id).populate(
-      "users",
+      "assignedTo",
       "name email",
     );
 
@@ -180,7 +180,7 @@ router.put("/:id", adminAuth, async (req, res) => {
     // 2️⃣ Build update object
     const update = {};
     const allowedFields = [
-      "users",
+      "assignedTo",
       "title",
       "description",
       "status",
@@ -205,6 +205,8 @@ router.put("/:id", adminAuth, async (req, res) => {
       { $set: update },
       { new: true, runValidators: true },
     );
+
+    console.log(updatedTask);
 
     // 4️⃣ Detect changes
     const statusChanged = req.body.status && req.body.status !== oldStatus;
@@ -247,7 +249,7 @@ router.put("/:id", adminAuth, async (req, res) => {
 
     // 6️⃣ Send email ONLY if status or priority changed
     if (statusChanged || priorityChanged) {
-      existingTask.users.forEach((user) => {
+      existingTask.assignedTo.forEach((user) => {
         sendEmail({
           to: user.email,
           subject: "Task Updated",
@@ -300,20 +302,23 @@ router.post("/:id/comment", bothAuth, async (req, res) => {
     const commenterModel = req.role === "admin" ? "Admin" : "User";
 
     task.comments.push({
-      commenter: req.userId,
-      commenterModel,
+      userRef: req.userId,
       comment,
     });
 
     await task.save();
 
-    await task.populate("comments.commenter");
-
+    // await task.populate("comments.commenter");
+    // repopulate before sending
+    const populated = await Tasks.findById(id)
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email")
+      .populate("comments.userRef", "name email");
     // console.log(task);
 
     res.status(201).json({
       message: "Comment added successfully",
-      task,
+      task: populated,
     });
   } catch (error) {
     console.error(error);

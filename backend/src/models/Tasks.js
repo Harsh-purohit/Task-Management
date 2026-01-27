@@ -1,85 +1,57 @@
 import mongoose from "mongoose";
 
-const tasksSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema({
+  comment: {
+    type: String,
+    required: true,
+  },
+  userRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // or Admin if you have separate model
+    required: true,
+  },
+  commentedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const taskSchema = new mongoose.Schema(
   {
-    projectRef: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Projects",
-      required: true,
-    },
-
-    // Reference to the User assigned to the task
-    users: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-    ],
-
-    // Reference to the Admin who created the task
-    adminRef: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
+    title: String,
+    description: String,
     status: {
       type: String,
-      enum: ["Todo", "In Progress", "Completed"],
       default: "Todo",
-    },
-    startDate: {
-      type: Date,
-      // required: true,
-      default: Date.now,
-    },
-    updateDate: {
-      type: Date,
-      default: Date.now,
-    },
-    endDate: {
-      type: Date,
-      required: true,
-      default: Date.now,
     },
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
-      required: true,
+      default: "Low",
     },
-    comments: [
+    endDate: Date,
+
+    // ✅ NEW
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    // ✅ NEW
+    assignedTo: [
       {
-        commenter: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: true,
-          refPath: "comments.commenterModel",
-        },
-        commenterModel: {
-          type: String,
-          required: true,
-          enum: ["User", "Admin"],
-        },
-        comment: {
-          type: String,
-          required: true,
-        },
-        commentedAt: {
-          type: Date,
-          default: Date.now,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
-  },
-  { timestamps: { createdAt: true, updatedAt: "updateDate" } },
-);
-const Tasks = mongoose.model("Tasks", tasksSchema);
 
-export default Tasks;
+    comments: [commentSchema],
+
+    projectRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Projects",
+    },
+  },
+  { timestamps: true },
+);
+
+export default mongoose.model("Tasks", taskSchema);

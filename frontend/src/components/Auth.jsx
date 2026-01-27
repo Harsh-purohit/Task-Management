@@ -9,6 +9,7 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faKey } from "@fortawesome/free-solid-svg-icons";
 import assets from "../assets/cross_icon.svg";
 import { useNavigate } from "react-router-dom";
+import { notify } from "../utils/toast";
 
 const Auth = () => {
   const mode = useSelector((state) => state.login.mode);
@@ -48,10 +49,13 @@ const Auth = () => {
         // localStorage.setItem("token", data.token);
         // console.log(localStorage.getItem("token"));
         dispatch(hideLogin());
+        mode === "login"
+          ? notify.success("Welcome back!!")
+          : notify.success("Account created successfully!!");
         navigate("/dashboard");
       }
     } catch (error) {
-      alert(error.response.data.message || "Something went wrong!");
+      notify.error(error.response.data.message || "Something went wrong!");
       console.error("Error during authentication:", error);
     }
   };

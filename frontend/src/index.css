@@ -7,3 +7,20 @@
 .sidebar-hover {
   @apply hover:rounded-4xl hover:bg-gray-200 border-gray-200 transition-all duration-200;
 }
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.25s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

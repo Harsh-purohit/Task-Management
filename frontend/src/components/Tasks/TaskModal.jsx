@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { addTask, updateTask } from "../../features/taskSlice";
-import useAllUsers from "../hooks/Alluser";
+import useAllUsers from "../../hooks/Alluser";
 import { toast } from "react-hot-toast";
+import { notify } from "../../utils/toast";
 
 const TaskModal = ({ projectId, task, onClose }) => {
   const dispatch = useDispatch();
@@ -18,9 +19,6 @@ const TaskModal = ({ projectId, task, onClose }) => {
   const isEdit = !!task;
 
   const allusers = useSelector((state) => state.allusers.allusers || []);
-
-  // console.log("allusers", allusers);
-
   const { fetchAllUsers } = useAllUsers();
 
   useEffect(() => {
@@ -39,142 +37,159 @@ const TaskModal = ({ projectId, task, onClose }) => {
   }, [task]);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  // const token = localStorage.getItem("token");
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
     try {
       const { data } = await axios.put(
         `${BACKEND_URL}/api/tasks/${task._id}`,
-        {
-          title,
-          description,
-          priority,
-          users,
-          status,
-          endDate,
-        },
+        { title, description, priority, users, status, endDate },
         { withCredentials: true },
       );
 
       dispatch(updateTask(data));
-      alert("Updated successfully");
+      notify.success("Task updated");
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message);
+      notify.error(err.response?.data?.message);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const { data } = await axios.post(
         `${BACKEND_URL}/api/tasks`,
-        {
-          title,
-          users,
-          endDate,
-          priority,
-          description,
-          projectRef: projectId,
-        },
-        {
-          withCredentials: true,
-        },
+        { title, users, endDate, priority, description, projectRef: projectId },
+        { withCredentials: true },
       );
 
       dispatch(addTask(data));
+      notify.success("Task created");
       onClose();
     } catch (error) {
-      // alert(error.response?.data?.message || "Bad request");
-      toast.error(error);
-      onClose();
+      notify.error(error.response?.data?.message || "Error");
     }
   };
 
+  const inputStyle =
+    "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none";
+
   return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/30 backdrop-blur-sm">
+    /* BACKDROP */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn"
+      onClick={onClose}
+    >
+      {/* MODAL */}
       <form
+        onClick={(e) => e.stopPropagation()}
         onSubmit={isEdit ? handleUpdate : handleSubmit}
-        className="bg-white p-6 rounded-xl w-100"
+        className="bg-white w-[95%] md:w-[650px] rounded-2xl shadow-2xl p-6 space-y-5"
       >
-        <h2 className="mb-4 font-semibold">
-          {isEdit ? "Edit Task" : "Add Task"}
-        </h2>
+        {/* HEADER */}
+        <div className="flex justify-between items-center border-b pb-3">
+          <h2 className="text-xl font-semibold">
+            {isEdit ? "Edit Task ✏️" : "Create Task 🚀"}
+          </h2>
 
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Task title"
-          className="w-full border border-gray-500 p-2 mb-3 rounded-md"
-          required
-        />
-
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Task description"
-          className="w-full border border-gray-500 p-2 rounded-md px-3 py-2 mb-3"
-        />
-
-        <select
-          multiple
-          value={users}
-          onChange={(e) =>
-            setUsers(
-              Array.from(e.target.selectedOptions, (option) => option.value),
-            )
-          }
-          className="w-full border border-gray-500 p-2 rounded h-28 outline-none mb-3 overflow-y-scroll"
-        >
-          {allusers.map((user) => (
-            <option key={user._id} value={user._id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="w-full border border-gray-500 outline-none p-2 mb-3 rounded"
-        />
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full border border-gray-500 p-2 mb-3 rounded outline-none"
-        >
-          <option value="Todo">Todo</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
-        </select>
-
-        <select
-          value={priority}
-          onChange={(e) => setPriority(e.target.value)}
-          className="w-full border border-gray-500 p-2 mb-3 rounded outline-none"
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-
-        <div className="flex justify-end gap-4 mt-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded-md cursor-pointer"
+            className="text-gray-400 hover:text-gray-700 text-lg"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* TITLE */}
+        <div>
+          <label className="text-sm font-medium text-gray-600">Title</label>
+          <input
+            className={inputStyle}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter task title"
+            required
+          />
+        </div>
+
+        {/* DESCRIPTION */}
+        <div>
+          <label className="text-sm font-medium text-gray-600">
+            Description
+          </label>
+          <textarea
+            rows={3}
+            className={inputStyle}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Add task details..."
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-gray-600 block mb-2">
+            Assign Users
+          </label>
+
+          <div className="border border-gray-300 rounded-lg max-h-40 overflow-y-auto p-2 space-y-2">
+            {allusers.map((user) => {
+              const checked = users.includes(user._id);
+
+              return (
+                <label
+                  key={user._id}
+                  className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition
+            ${checked ? "bg-blue-50 border border-blue-300" : "hover:bg-gray-50"}
+          `}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => {
+                      if (checked) {
+                        setUsers(users.filter((u) => u !== user._id));
+                      } else {
+                        setUsers([...users, user._id]);
+                      }
+                    }}
+                    className="w-4 h-4 accent-blue-500"
+                  />
+
+                  <span className="text-sm">{user.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        
+
+        {/* DATE */}
+        <div>
+          <label className="text-sm font-medium text-gray-600">Due Date</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className={inputStyle}
+          />
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            className="bg-gradient-to-r from-blue-500 to-green-500 text-white cursor-pointer px-4 py-2 rounded-md shadow-2xl"
+            className="px-5 py-2 rounded-lg text-white font-medium bg-gradient-to-r from-blue-500 to-emerald-500 hover:scale-105 transition"
           >
             {isEdit ? "Update" : "Create"}
           </button>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../features/authSlice";
+import { notify } from "../utils/toast";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -28,8 +29,6 @@ const UpdateProfileModal = ({ onClose }) => {
       if (form.name !== user.name) payload.name = form.name;
       if (form.email !== user.email) payload.email = form.email;
 
-      
-
       if (form.oldPassword && form.newPassword) {
         payload.oldPassword = form.oldPassword;
         payload.newPassword = form.newPassword;
@@ -42,10 +41,10 @@ const UpdateProfileModal = ({ onClose }) => {
       );
 
       dispatch(setUser(data.user)); // update redux instantly
-      alert("Profile updated ✅");
+      notify.success("Profile updated ✅");
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
+      notify.error(err.response?.data?.message || "Update failed");
     }
   };
 

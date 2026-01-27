@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setAllusers } from "../../features/alluserSlice";
+import { setAllusers } from "../features/alluserSlice";
+import { notify } from "../utils/toast";
 
 const useAllUsers = () => {
   const dispatch = useDispatch();
@@ -17,13 +18,13 @@ const useAllUsers = () => {
         withCredentials: true,
       });
 
-      // console.log("all users", response.data.users);
+      console.log("all users", response.data.users);
 
       if (response.status === 200) {
         dispatch(setAllusers(response.data.users));
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong!");
+      notify.error(error.response?.data?.message || "Something went wrong!");
     }
   };
 

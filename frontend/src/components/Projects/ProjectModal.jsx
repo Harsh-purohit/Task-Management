@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addProject, updateProject } from "../../features/projectSlice";
 import axios from "axios";
-import useAllUsers from "../hooks/Alluser";
+import useAllUsers from "../../hooks/Alluser";
 import { useEffect } from "react";
+import { notify } from "../../utils/toast";
 
 const ProjectModal = ({ onClose, project }) => {
   const dispatch = useDispatch();
@@ -74,20 +75,22 @@ const ProjectModal = ({ onClose, project }) => {
         );
 
         dispatch(updateProject(response.data));
+        notify.success("Project Updated..");
       } else {
         response = await axios.post(url + "/api/projects", payload, {
           withCredentials: true,
         });
 
         dispatch(addProject(response.data));
+        notify.success("New Project Added...");
       }
       // console.log(response.data);
 
       onClose();
     } catch (error) {
-      console.log("STATUS:", error.response?.status);
-      console.log("ERROR:", error.response?.data);
-      alert(error.response?.data?.message || "Bad request");
+      // console.log("STATUS:", error.response?.status);
+      // console.log("ERROR:", error.response?.data);
+      notify.error(error.response?.data?.message || "Bad request");
       onClose();
     }
   };
