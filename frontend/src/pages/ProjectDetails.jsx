@@ -32,7 +32,7 @@ const ProjectDetails = () => {
   const tasks = useSelector((state) => state.tasks.tasks);
   const loading = useSelector((state) => state.tasks.loading);
 
-  console.log("task: ", loading);
+  // console.log("task: ", loading);
 
   const user = useSelector((state) => state.auth);
 
@@ -121,7 +121,7 @@ const ProjectDetails = () => {
         withCredentials: true,
       });
 
-      console.log(data);
+      // console.log(data);
 
       dispatch(setTasks(data));
     };

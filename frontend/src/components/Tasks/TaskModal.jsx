@@ -17,7 +17,7 @@ const TaskModal = ({ projectId, task, onClose }) => {
 
   const isEdit = !!task;
 
-  const allusers = useSelector((state) => state.allusers.allusers || []);
+  const allusers = useSelector((state) => state.allusers.allusers.users || []);
   const { fetchAllUsers } = useAllUsers();
 
   useEffect(() => {
@@ -126,6 +126,44 @@ const TaskModal = ({ projectId, task, onClose }) => {
             placeholder="Add task details..."
           />
         </div>
+
+        {/* 2 COLUMN GRID */}
+        {!isEdit && (
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* PRIORITY */}
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Priority
+              </label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className={inputStyle}
+              >
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+
+            {/* STATUS */}
+
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Status
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className={inputStyle}
+              >
+                <option>Todo</option>
+                <option>In Progress</option>
+                <option>Done</option>
+              </select>
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="text-sm font-medium text-gray-600 block mb-2">

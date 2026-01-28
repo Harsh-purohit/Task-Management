@@ -31,10 +31,10 @@ const StatsCards = () => {
           }),
         ]);
 
-        console.log("Fetched user info:", {
-          tasks: tasksRes,
-          projects: projectsRes,
-        });
+        // console.log("Fetched user info:", {
+        //   tasks: tasksRes,
+        //   projects: projectsRes,
+        // });
 
         dispatch(
           setUserInfo({

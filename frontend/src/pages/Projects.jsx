@@ -24,8 +24,20 @@ const Projects = () => {
   const [showModal, setShowModal] = useState(false);
   const [activeLogProject, setActiveLogProject] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const users = useSelector((state) => state.allusers.allusers || []);
 
   const url = import.meta.env.VITE_BACKEND_URL;
+
+  const getUserName = (id) => {
+    // console.log(id);
+    let user = users.users.find((u) => u._id === id);
+    if (!user) {
+      user = users.admin.find((u) => u._id === id);
+    }
+
+    // console.log("-------", user);
+    return user ? user.name : "Unknown";
+  };
 
   const updateField = async (projectId, field, value) => {
     try {
@@ -140,14 +152,10 @@ const Projects = () => {
                 {project.description || "No description"}
               </p>
 
-              {/* <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-2">
                 Assigned to:{" "}
-                {project.userRef?.length
-                  ? project.assignedTo
-                      .map((u) => u.name || getUserName(u))
-                      .join(", ")
-                  : "Unassigned"}
-              </p> */}
+                {project?.userRef ? getUserName(project.userRef) : "Unassigned"}
+              </p>
 
               {/* STATUS */}
               <select

@@ -22,7 +22,7 @@ const AllUserInfo = () => {
         { withCredentials: true },
       );
 
-      console.log(response);
+      // console.log(response);
 
       dispatch(softDeleteUser(id));
       toast.success("User moved to trash 🗑️");

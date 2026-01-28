@@ -199,7 +199,7 @@ router.put("/:id", adminAuth, async (req, res) => {
       { new: true, runValidators: true },
     );
 
-    console.log(updatedTask);
+    // console.log(updatedTask);
 
     // 4️⃣ Detect changes
     const statusChanged = req.body.status && req.body.status !== oldStatus;
