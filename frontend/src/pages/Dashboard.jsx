@@ -3,10 +3,12 @@ import TodayTasks from "../components/Dashboard/TodayTasks";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import useAllUsers from "../hooks/Alluser";
+import AllUserInfo from "../components/Dashboard/AllUserInfo";
 // import RecentActivity from "../components/dashboard/RecentActivity";
 
 const Dashboard = () => {
   const userName = useSelector((state) => state.auth.user?.name);
+  const user = useSelector((state) => state.auth);
 
   const { fetchAllUsers } = useAllUsers();
 
@@ -23,6 +25,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <TodayTasks />
         {/* <RecentActivity /> */}
+        {user.isAdmin && <AllUserInfo />}
       </div>
     </div>
   );

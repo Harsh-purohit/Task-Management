@@ -2,7 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { setTasks, removeTask, clearTasks } from "../features/taskSlice";
+import {
+  setTasks,
+  removeTask,
+  clearTasks,
+  startLoading,
+} from "../features/taskSlice";
 import {
   faComment,
   faTrashCan,
@@ -25,8 +30,9 @@ const ProjectDetails = () => {
 
   const users = useSelector((state) => state.allusers.allusers || []);
   const tasks = useSelector((state) => state.tasks.tasks);
+  const loading = useSelector((state) => state.tasks.loading);
 
-  // console.log("task: ", tasks);
+  console.log("task: ", loading);
 
   const user = useSelector((state) => state.auth);
 
@@ -105,23 +111,12 @@ const ProjectDetails = () => {
     }
   };
 
-  useEffect(() => {
-    // console.log(tasks.length);
-    if (tasks.length === 0) {
-      notify.dismiss();
-      notify.success("No tasks yet 🚀");
-
-      const timer = setTimeout(() => navigate("/projects"), 1000);
-
-      return () => clearTimeout(timer);
-    } 
-  }, [tasks.length]);
-
   // -----------------------------
   // Fetch
   // -----------------------------
   useEffect(() => {
     const fetchTasks = async () => {
+      dispatch(startLoading());
       const { data } = await axios.get(`${BACKEND_URL}/api/tasks/${id}`, {
         withCredentials: true,
       });
@@ -134,6 +129,18 @@ const ProjectDetails = () => {
     fetchTasks();
     return () => dispatch(clearTasks());
   }, [id]);
+
+  useEffect(() => {
+    // console.log(tasks.length);
+    if (tasks.length === 0 && !loading) {
+      notify.dismiss();
+      notify.success("No tasks yet 🚀");
+
+      const timer = setTimeout(() => navigate("/projects"), 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, tasks.length]);
 
   return (
     <div className="py-10 space-y-8 min-h-screen">

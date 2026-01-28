@@ -20,10 +20,10 @@ router.get("/allusers", bothAuth, async (req, res) => {
   }
 });
 
-router.delete("/deleteuser/:id", adminAuth, async (req, res) => {
+router.patch("/:id/deleteuser", adminAuth, async (req, res) => {
   try {
     const userId = req.params.id;
-
+    // console.log(userId);
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -31,9 +31,11 @@ router.delete("/deleteuser/:id", adminAuth, async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { isDeleted: true },
+      { isDeleted: true, deletedAt: new Date() },
       { new: true },
     );
+
+    // console.log(user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
