@@ -59,12 +59,13 @@ const ProjectDetails = () => {
     };
 
     fetchTasks();
-    return () => dispatch(clearTasks());
+    // return () => dispatch(clearTasks());
   }, [id]);
 
   useEffect(() => {
-    // console.log(tasks.length);
     if (tasks.length === 0) {
+          console.log(tasks.length);
+
       notify.dismiss();
       notify.success("No tasks yet 🚀");
 
@@ -72,7 +73,7 @@ const ProjectDetails = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [loading, tasks.length]);
+  }, [loading, tasks]);
 
   // console.log("users:   ", users);
   const getUserName = (id) => {

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  tasks: [],
+  tasks: JSON.parse(localStorage.getItem("tasks")) || [],
   loading: false,
 };
 
@@ -12,11 +12,15 @@ const tasksSlice = createSlice({
     setTasks: (state, action) => {
       state.tasks = action.payload;
       state.loading = false;
+
+      localStorage.setItem("tasks", JSON.stringify(state.tasks));
     },
 
     addTask: (state, action) => {
       state.tasks.push(action.payload);
       state.loading = false;
+
+      localStorage.setItem("tasks", JSON.stringify(state.tasks));
     },
 
     startLoading: (state) => {
@@ -28,10 +32,13 @@ const tasksSlice = createSlice({
 
       if (index !== -1) {
         state.tasks[index] = action.payload;
+        localStorage.setItem("tasks", JSON.stringify(state.tasks));
       }
     },
+
     removeTask: (state, action) => {
       state.tasks = state.tasks.filter((t) => t._id !== action.payload);
+      localStorage.setItem("tasks", JSON.stringify(state.tasks));
     },
 
     clearTasks: (state) => {

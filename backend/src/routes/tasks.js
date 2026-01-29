@@ -67,6 +67,9 @@ router.post("/", adminAuth, async (req, res) => {
       });
     });
 
+    await client.del(`tasks:${req.userId}`);
+    await client.del(`${req.userId}_tasks: ${id}`);
+
     res.status(201).json({
       message: "Task created successfully",
       task: newTask,
@@ -286,10 +289,31 @@ router.put("/:id", adminAuth, async (req, res) => {
       });
     }
 
+    await client.del(`tasks:${req.userId}`);
+    await client.del(`${req.userId}_tasks: ${id}`);
+
     res.status(200).json(updatedTask);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/:id/comment", bothAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid task ID" });
+    }
+
+    const task = await Tasks.findById(id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.json(error);
   }
 });
 
@@ -328,6 +352,9 @@ router.post("/:id/comment", bothAuth, async (req, res) => {
       .populate("assignedTo", "name email")
       .populate("comments.userRef", "name email");
     // console.log(task);
+
+    await client.del(`tasks:${req.userId}`);
+    await client.del(`${req.userId}_tasks: ${id}`);
 
     res.status(201).json({
       message: "Comment added successfully",
@@ -372,6 +399,9 @@ router.delete("/:id", adminAuth, async (req, res) => {
         project: task.projectRef?._id,
       },
     });
+
+    await client.del(`tasks:${req.userId}`);
+    await client.del(`${req.userId}_tasks: ${id}`);
 
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {

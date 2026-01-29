@@ -35,7 +35,7 @@ const Navbar = () => {
           <FontAwesomeIcon
             icon={faBars}
             size="lg"
-            className="cursor-pointer my-3"
+            className="cursor-pointer my-3 hover:scale-115"
             onClick={() => setSidebar(!sidebar)}
           />
           {sidebar && (
@@ -55,31 +55,39 @@ const Navbar = () => {
           name="search"
           id="search"
           placeholder="Search tasks or projects"
-          className="w-lg h-10 outline-none rounded-full p-4 bg-gray-100 "
+          className="w-lg h-10 outline-none rounded-full p-4 bg-gray-200 "
         />
       </div>
 
       {isAuthenticated ? (
-        <div className="relative group my-2 text-lg flex gap-2 items-center cursor-pointer hover:bg-gray-200 hover:rounded-full px-5 py-2 transition-all duration-200">
+        <div className="relative group my-2 text-lg flex gap-2 items-center cursor-pointer hover:bg-gray-200 hover:rounded-full hover:scale-105 px-5 py-2 transition-all duration-200">
           <FontAwesomeIcon icon={faUser} style={{ color: "#63E6BE" }} />
           <button className="text-primary cursor-pointer">{userName}</button>
 
-          <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12">
-            <ul className="list-none m-2 p-4 shadow-xl rounded-lg text-sm bg-[#F9FAFB]">
-              <li
-                onClick={() => setShowUpdateModal(true)}
-                className="py-2 px-5 flex items-center gap-2 cursor-pointer hover:text-white hover:bg-gradient-to-r from-blue-500 to-green-500  rounded-full text-center"
-              >
-                Update{" "}
-                <FontAwesomeIcon icon={faUser} style={{ color: "#63E6BE" }} />
-              </li>
-              <li
-                onClick={handleLogout}
-                className="py-2 px-5 cursor-pointer hover:text-white hover:bg-gradient-to-r from-blue-500 to-green-500  rounded-full text-center"
-              >
-                Logout
-              </li>
-            </ul>
+          <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded-lg pt-12">
+            {/* gradient border wrapper */}
+            <div className="p-0.5 rounded-lg bg-gradient-to-r from-blue-500 to-green-500 shadow-2xl">
+              <ul className="list-none m-0 p-4 rounded-lg text-sm bg-[#F9FAFB]">
+                <li
+                  onClick={() => setShowUpdateModal(true)}
+                  className="py-2 px-5 flex items-center gap-2 cursor-pointer 
+                   hover:text-white hover:bg-gradient-to-r from-blue-500 to-green-500
+                   rounded-full text-center transition"
+                >
+                  Update
+                  <FontAwesomeIcon icon={faUser} style={{ color: "#63E6BE" }} />
+                </li>
+
+                <li
+                  onClick={handleLogout}
+                  className="py-2 px-5 cursor-pointer 
+                   hover:text-white hover:bg-gradient-to-r from-blue-500 to-green-500
+                   rounded-full text-center transition"
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       ) : (

@@ -9,7 +9,7 @@ const projectsSlice = createSlice({
   initialState,
   reducers: {
     setProjects: (state, action) => {
-      console.log(action.payload);
+      // console.log(action.payload);
       state.projects = action.payload;
 
       localStorage.setItem("projects", JSON.stringify(action.payload));
