@@ -10,6 +10,7 @@ import { showLogin, showRegister } from "../features/loginSlice";
 import { logout } from "../features/authSlice";
 import UpdateProfileModal from "./UpdateProfileModal";
 import { notify } from "../utils/toast";
+import { clearAllUser } from "../features/alluserSlice";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearAllUser());
+    localStorage.removeItem("projects");
     notify.success("Logout Successfull.");
   };
 

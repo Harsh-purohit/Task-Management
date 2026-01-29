@@ -19,11 +19,15 @@ const userInfoSlice = createSlice({
       state.allusers = state.allusers.filter(
         (user) => user._id !== action.payload,
       );
-
       // console.log("soft delete user: ", state.allusers);
+    },
+
+    clearAllUser: (state) => {
+      state.allusers = [];
+      localStorage.removeItem("allusers");
     },
   },
 });
 
-export const { setAllusers, softDeleteUser } = userInfoSlice.actions;
+export const { setAllusers, softDeleteUser, clearAllUser } = userInfoSlice.actions;
 export default userInfoSlice.reducer;
