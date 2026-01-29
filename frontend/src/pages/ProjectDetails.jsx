@@ -42,6 +42,38 @@ const ProjectDetails = () => {
   const [selectedTask, setSelectedTask] = useState("");
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // -----------------------------
+  // Fetch
+  // -----------------------------
+  useEffect(() => {
+    const fetchTasks = async () => {
+      dispatch(startLoading());
+      const { data } = await axios.get(`${BACKEND_URL}/api/tasks/${id}`, {
+        withCredentials: true,
+      });
+
+      // console.log(data);
+
+      dispatch(setTasks(data));
+    };
+
+    fetchTasks();
+    return () => dispatch(clearTasks());
+  }, [id]);
+
+  useEffect(() => {
+    // console.log(tasks.length);
+    if (tasks.length === 0) {
+      notify.dismiss();
+      notify.success("No tasks yet 🚀");
+
+      const timer = setTimeout(() => navigate("/projects"), 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, tasks.length]);
+
   // console.log("users:   ", users);
   const getUserName = (id) => {
     // console.log(id);
@@ -109,37 +141,6 @@ const ProjectDetails = () => {
       notify.error("Failed to add comment");
     }
   };
-
-  // -----------------------------
-  // Fetch
-  // -----------------------------
-  useEffect(() => {
-    const fetchTasks = async () => {
-      dispatch(startLoading());
-      const { data } = await axios.get(`${BACKEND_URL}/api/tasks/${id}`, {
-        withCredentials: true,
-      });
-
-      // console.log(data);
-
-      dispatch(setTasks(data));
-    };
-
-    fetchTasks();
-    return () => dispatch(clearTasks());
-  }, [id]);
-
-  useEffect(() => {
-    // console.log(tasks.length);
-    if (tasks.length === 0) {
-      notify.dismiss();
-      notify.success("No tasks yet 🚀");
-
-      const timer = setTimeout(() => navigate("/projects"), 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [loading, tasks.length]);
 
   return (
     <div className="py-10 space-y-8 min-h-screen">

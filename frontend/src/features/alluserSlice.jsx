@@ -4,6 +4,10 @@ const initialState = {
   allusers: JSON.parse(localStorage.getItem("allusers")) || [],
 };
 
+const localStore = (users) => {
+  localStorage.setItem("allusers", JSON.stringify(users));
+};
+
 const userInfoSlice = createSlice({
   name: "allusers",
   initialState,
@@ -12,13 +16,16 @@ const userInfoSlice = createSlice({
       // console.log("from slice", action.payload);
 
       state.allusers = action.payload;
-      localStorage.setItem("allusers", JSON.stringify(state.allusers));
+      localStore(state.allusers);
     },
 
     softDeleteUser: (state, action) => {
-      state.allusers = state.allusers.filter(
-        (user) => user._id !== action.payload,
-      );
+      let user = state.allusers.find((user) => user._id === action.payload);
+
+      if (user) {
+        user = action.payload;
+      }
+      localStore(state.allusers);
       // console.log("soft delete user: ", state.allusers);
     },
 
@@ -29,5 +36,6 @@ const userInfoSlice = createSlice({
   },
 });
 
-export const { setAllusers, softDeleteUser, clearAllUser } = userInfoSlice.actions;
+export const { setAllusers, softDeleteUser, clearAllUser } =
+  userInfoSlice.actions;
 export default userInfoSlice.reducer;

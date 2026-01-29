@@ -1,10 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { softDeleteUser } from "../../features/alluserSlice";
+import { notify } from "../../utils/toast";
 
 const AllUserInfo = () => {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ const AllUserInfo = () => {
   // ================= Delete =================
   const handleDelete = async (id) => {
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${url}/api/admin/${id}/deleteuser`,
         {},
         { withCredentials: true },
@@ -24,10 +24,10 @@ const AllUserInfo = () => {
 
       // console.log(response);
 
-      dispatch(softDeleteUser(id));
-      toast.success("User moved to trash 🗑️");
-    } catch {
-      toast.error("Delete failed");
+      dispatch(softDeleteUser(response.data.user));
+      notify.success("User moved to trash ");
+    } catch (error) {
+      notify.error("Delete failed");
     }
   };
 

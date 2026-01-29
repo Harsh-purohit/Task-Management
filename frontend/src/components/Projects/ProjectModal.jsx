@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addProject, updateProject } from "../../features/projectSlice";
 import axios from "axios";
-import useAllUsers from "../../hooks/Alluser";
 import { useEffect } from "react";
 import { notify } from "../../utils/toast";
 
@@ -11,7 +10,7 @@ const ProjectModal = ({ onClose, project }) => {
   const isEdit = !!project;
   const allusers = useSelector((state) => state.allusers.allusers.users || []);
 
-  console.log("allusers", allusers);
+  // console.log("allusers", allusers);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

@@ -82,6 +82,7 @@ const Projects = () => {
       notify.error(error.response?.data?.message || "Something went wrong");
     }
   };
+  
   return (
     <div className="py-10 space-y-8 min-h-screen">
       <div className="flex justify-between items-center">

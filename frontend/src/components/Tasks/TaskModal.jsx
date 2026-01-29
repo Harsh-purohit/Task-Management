@@ -26,12 +26,12 @@ const TaskModal = ({ projectId, task, onClose }) => {
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title || "");
-      setDescription(task.description || "");
-      setPriority(task.priority || "Low");
-      setStatus(task.status || "Todo");
-      setEndDate(task.endDate?.slice(0, 10) || "");
-      setUsers(task.users || []);
+      setTitle(task?.title || "");
+      setDescription(task?.description || "");
+      setPriority(task?.priority || "Low");
+      setStatus(task?.status || "Todo");
+      setEndDate(task?.endDate?.slice(0, 10) || "");
+      setUsers(task?.users || []);
     }
   }, [task]);
 
