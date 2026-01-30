@@ -41,9 +41,9 @@ const tasksSlice = createSlice({
       localStorage.setItem("tasks", JSON.stringify(state.tasks));
     },
 
-    clearTasks: (state) => {
-      state.tasks = [];
-    },
+    // clearTasks: (state) => {
+    //   state.tasks = [];
+    // },
   },
 });
 
@@ -53,7 +53,7 @@ export const {
   startLoading,
   updateTask,
   removeTask,
-  clearTasks,
+  // clearTasks,
 } = tasksSlice.actions;
 
 export default tasksSlice.reducer;

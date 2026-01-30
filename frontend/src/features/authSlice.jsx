@@ -1,11 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const storedUser = JSON.parse(localStorage.getItem("user"));
+// const storedUser = JSON.parse(localStorage.getItem("user"));
 
 const initialState = {
-  user: storedUser?.user || null,
-  isAuthenticated: !!storedUser?.token,
-  isAdmin: storedUser?.role === "admin",
+  user: JSON.parse(localStorage.getItem("user"))?.user || null,
+  isAuthenticated: !!JSON.parse(localStorage.getItem("user"))?.token,
+  isAdmin: JSON.parse(localStorage.getItem("user"))?.role === "admin",
+};
+
+const localStore = (user) => {
+  localStorage.setItem("user", JSON.stringify(user));
 };
 
 const authSlice = createSlice({
@@ -19,7 +23,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.isAdmin = role === "admin";
 
-      localStorage.setItem("user", JSON.stringify({ user, token, role }));
+      localStore({ user, token, role });
     },
     register: (state, action) => {
       const { user, token, role } = action.payload;
@@ -28,7 +32,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.isAdmin = role === "admin";
 
-      localStorage.setItem("user", JSON.stringify({ user, token, role }));
+      localStore({ user, token, role });
     },
     setUser: (state, action) => {
       // console.log(action.payload);
@@ -44,12 +48,13 @@ const authSlice = createSlice({
         }),
       );
     },
+
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.isAdmin = false;
-
-      localStorage.removeItem("user");
+      localStorage.clear();
+      // localStorage.removeItem("user");
     },
   },
 });

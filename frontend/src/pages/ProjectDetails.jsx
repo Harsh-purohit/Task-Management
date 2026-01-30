@@ -5,7 +5,7 @@ import axios from "axios";
 import {
   setTasks,
   removeTask,
-  clearTasks,
+  // clearTasks,
   startLoading,
 } from "../features/taskSlice";
 import {
@@ -64,14 +64,16 @@ const ProjectDetails = () => {
 
   useEffect(() => {
     if (tasks.length === 0) {
-          console.log(tasks.length);
+      // console.log(tasks.length);
 
       notify.dismiss();
       notify.success("No tasks yet 🚀");
 
       const timer = setTimeout(() => navigate("/projects"), 1000);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [loading, tasks]);
 

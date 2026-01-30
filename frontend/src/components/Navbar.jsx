@@ -24,7 +24,7 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearAllUser());
-    localStorage.removeItem("projects");
+    // localStorage.removeItem("projects");
     notify.success("Logout Successfull.");
   };
 

@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import ActivityTimeline from "../components/ActivityTimeline";
-import toast from "react-hot-toast";
 import { notify } from "../utils/toast";
 
 const Projects = () => {
@@ -36,7 +35,7 @@ const Projects = () => {
       user = users.admin.find((u) => u._id === id);
     }
 
-    console.log("-------", user);
+    // console.log("-------", user);
     return user ? user.name : "Unknown";
   };
 
@@ -110,9 +109,8 @@ const Projects = () => {
           {projects.map((project) => (
             <div
               key={project._id}
-              className={`
-    bg-white p-6 rounded-xl shadow-sm cursor-pointer
-    transition-all duration-300 ease-in-out
+              className={` group backdrop-blur bg-white/90 p-6 rounded-2xl shadow-sm cursor-pointer
+    transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1
     ${
       activeLogProject === project._id
         ? "min-h-[420px] scale-[1.02] shadow-lg"
@@ -122,7 +120,7 @@ const Projects = () => {
             >
               <div className="flex justify-between">
                 <h3
-                  className="text-lg font-medium cursor-pointer"
+                  className="text-xl font-semibold group-hover:text-blue-500 cursor-pointer"
                   onClick={() => navigate(`/dashboard/projects/${project._id}`)}
                 >
                   {project.name || project.title}
@@ -161,9 +159,7 @@ const Projects = () => {
 
               {/* STATUS */}
               <div className="flex items-center gap-1">
-                <p className="text-sm text-gray-500 mt-2 ">
-                  Status:
-                </p>
+                <p className="text-sm text-gray-500 mt-2 ">Status:</p>
                 {user.isAdmin ? (
                   <select
                     value={project.status}
@@ -203,7 +199,7 @@ const Projects = () => {
                 <div className="flex gap-4 mt-4 text-sm">
                   <button
                     onClick={() => setSelectedProject(project)}
-                    className="text-blue-600 hover:underline cursor-pointer"
+                    className="text-blue-400 hover:text-blue-600 hover:underline cursor-pointer"
                   >
                     <FontAwesomeIcon
                       icon={faPenToSquare}
@@ -214,7 +210,7 @@ const Projects = () => {
 
                   <button
                     onClick={deleteProject.bind(null, project._id)}
-                    className="text-red-500 hover:underline cursor-pointer"
+                    className="text-red-400 hover:text-red-500 hover:underline cursor-pointer"
                   >
                     <FontAwesomeIcon
                       icon={faTrashCan}
