@@ -35,7 +35,7 @@ const Auth = () => {
           ? { email, password }
           : { name, email, password, role };
 
-      const { data } = await axios.post(BACKEND_url + url, payload, {
+      const {data} = await axios.post(BACKEND_url + url, payload, {
         withCredentials: true,
       });
       // console.log(data);

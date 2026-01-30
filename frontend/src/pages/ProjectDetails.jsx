@@ -38,6 +38,8 @@ const ProjectDetails = () => {
   const [openComments, setOpenComments] = useState(null);
   const [newComment, setNewComment] = useState("");
 
+  // const [newTasks, setnewTasks] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState("");
 
@@ -48,34 +50,29 @@ const ProjectDetails = () => {
   // -----------------------------
   useEffect(() => {
     const fetchTasks = async () => {
-      dispatch(startLoading());
+      // dispatch(startLoading());
+
       const { data } = await axios.get(`${BACKEND_URL}/api/tasks/${id}`, {
         withCredentials: true,
       });
 
       // console.log(data);
-
       dispatch(setTasks(data));
+      
+      if (data?.length === 0) {
+        notify.dismiss();
+        notify.success("No tasks yet 🚀");
+
+        const timer = setTimeout(() => navigate("/projects"), 1000);
+
+        return () => {
+          clearTimeout(timer);
+        };
+      }
     };
 
     fetchTasks();
-    // return () => dispatch(clearTasks());
-  }, [id]);
-
-  useEffect(() => {
-    if (tasks.length === 0) {
-      // console.log(tasks.length);
-
-      notify.dismiss();
-      notify.success("No tasks yet 🚀");
-
-      const timer = setTimeout(() => navigate("/projects"), 1000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [loading, tasks]);
+  }, []);
 
   // console.log("users:   ", users);
   const getUserName = (id) => {

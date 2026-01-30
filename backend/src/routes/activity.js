@@ -10,21 +10,22 @@ router.get("/:entityId", bothAuth, async (req, res) => {
     const { entityId } = req.params;
     // console.log(entityId);
 
-    const cacheKey = `activity:${entityId}`;
+    // const cacheKey = `activity:${entityId}`;
 
-    const cachedData = await client.get(cacheKey);
-    // console.log(cachedData);
-    if (cachedData) {
-      return res.status(200).json(JSON.parse(cachedData));
-    }
+    // const cachedData = await client.get(cacheKey);
+    // // console.log(cachedData);
+    // if (cachedData) {
+    //   return res.status(200).json(JSON.parse(cachedData));
+    // }
 
     const logs = await ActivityLog.find({
       entityId: entityId,
     })
       .populate("actor", "name role")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
-    await client.set(cacheKey, JSON.stringify(logs), { EX: 120 });
+    // await client.set(cacheKey, JSON.stringify(logs), { EX: 120 });
     // console.log("log: ", logs);
     res.json(logs);
   } catch (error) {

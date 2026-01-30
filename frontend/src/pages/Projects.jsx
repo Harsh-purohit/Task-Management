@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { removeProject, setProjects } from "../features/projectSlice";
 import ProjectModal from "../components/Projects/ProjectModal";
 import axios from "axios";
@@ -16,6 +16,8 @@ const Projects = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth);
+  const userId = useSelector((state) => state.auth.user?._id);
+
   // console.log("-----", user);
 
   // console.log("proj: ", projects);
@@ -26,6 +28,33 @@ const Projects = () => {
   const users = useSelector((state) => state.allusers.allusers || []);
 
   const url = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      // dispatch(startLoading());
+
+      const { data } = await axios.get(`${url}/api/projects`, {
+        withCredentials: true,
+        params: { users: userId },
+      });
+
+      // console.log(data);
+      dispatch(setProjects(data));
+
+      if (data?.length === 0) {
+        notify.dismiss();
+        notify.success("No Projects yet 🚀");
+
+        const timer = setTimeout(() => navigate("/"), 1000);
+
+        return () => {
+          clearTimeout(timer);
+        };
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const getUserName = (id) => {
     // console.log(id);

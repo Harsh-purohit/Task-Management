@@ -4,8 +4,13 @@ import Admin from "../models/Admin.js";
 
 const getAllUsers = async (req, res) => {
   try {
-    const resultUsers = await User.find({ isDeleted: false });
-    const resultAdmin = await Admin.find();
+    const resultUsers = await User.find(
+      { isDeleted: false }, // filter (WHERE)
+    )
+      .select("name email _id") // fields to return
+      .lean();
+
+    const resultAdmin = await Admin.find({}).select("name email _id").lean();
 
     // console.log("Fetched Users:", resultUsers);
 
@@ -28,7 +33,7 @@ const deleteUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { isDeleted: true, deletedAt: new Date() },
-      { new: true },
+      { new: true, lean: true },
     );
 
     // console.log(user);

@@ -54,25 +54,29 @@ const getProject = async (req, res) => {
     // }
 
     if (req.role === "admin") {
-      const projects = await Projects.find({});
+      const projects = await Projects.find({}).lean();
 
       // await client.set(cacheKey, JSON.stringify(projects), { EX: 180 });
       return res.status(200).json(projects);
     }
 
-    // projects created by user
-    const ownedProjects = await Projects.find({ userRef: req.userId });
+    // projects assigned to user by admin
+    const ownedProjects = await Projects.find({ userRef: req.userId }).lean();
 
-    // tasks assigned to user
-    const tasks = await Tasks.find({ assignedTo: req.userId });
+    // if a user is not assigned to project, then if (either he is assigned to task)
+    // tasks assigned to user by admin
+    // result = task -> projectID
+    const tasks_projectID = await Tasks.find({ assignedTo: req.userId })
+      .select("projectRef")
+      .lean();
 
     // extract project ids
-    const projectIds = tasks.map((t) => t.projectRef);
+    // const projectIds = tasks.map((t) => t.projectRef);
 
-    // projects where user has tasks
+    // projects where user has tasks -> means user assigned to task but not project
     const taskProjects = await Projects.find({
-      _id: { $in: projectIds },
-    });
+      _id: { $in: tasks_projectID },
+    }).lean();
 
     // merge unique
     const allProjects = [
@@ -98,8 +102,10 @@ const updateProject = async (req, res) => {
       return res.status(400).json({ message: "Invalid project ID" });
     }
 
-    // 1️⃣ Fetch old project (for comparison)
-    const existingProject = await Projects.findById(id);
+    // Fetch old project (for comparison)
+    const existingProject = await Projects.findById(id)
+      .select("name description status")
+      .lean();
 
     if (!existingProject) {
       return res.status(404).json({ message: "Project not found" });
@@ -118,13 +124,14 @@ const updateProject = async (req, res) => {
       {
         new: true,
         runValidators: true,
+        lean: true,
       },
     );
     if (!projects) {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    // 3️⃣ Detect changes
+    // Detect changes
     const changes = [];
     const metadata = {};
 

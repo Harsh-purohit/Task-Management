@@ -4,6 +4,7 @@ import { setUserInfo, clearUserInfo } from "../../features/userInfoSlice";
 import axios from "axios";
 import { setProjects } from "../../features/projectSlice";
 import { notify } from "../../utils/toast";
+import { setTasks } from "../../features/taskSlice";
 
 const StatsCards = () => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const StatsCards = () => {
             projects: projectsRes.data,
           }),
         );
+        // dispatch(setTasks(tasksRes.data));
         dispatch(setProjects(projectsRes.data));
       } catch (error) {
         notify.error("Failed to fetch details");
@@ -51,9 +53,9 @@ const StatsCards = () => {
 
     fetchUserInfo();
 
-    return () => {
-      dispatch(clearUserInfo());
-    };
+    // return () => {
+    //   dispatch(clearUserInfo());
+    // };
   }, []);
 
   const totalTasks = userInfo?.tasks?.length || 0;

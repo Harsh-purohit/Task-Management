@@ -20,7 +20,7 @@ const App = () => {
   return (
     <div className="px-2 sm:px-4 md:px-8 lg:px-10 min-h-screen bg-[#F9FAFB]">
       <Toaster
-        position="top-right"
+        position="top-center"
         reverseOrder={false}
         toastOptions={{
           duration: 2000,
@@ -32,7 +32,7 @@ const App = () => {
           },
         }}
       />
-      
+
       <Navbar />
       {mode && <Auth />}
       <Routes>

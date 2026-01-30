@@ -144,11 +144,11 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "email & password required" });
 
     let role;
-    let user_or_admin = await User.findOne({ email, isDeleted: false });
+    let user_or_admin = await User.findOne({ email, isDeleted: false }).lean();
     if (user_or_admin) role = "user";
 
     if (!user_or_admin) {
-      user_or_admin = await Admin.findOne({ email });
+      user_or_admin = await Admin.findOne({ email }).lean();
       role = "admin";
     }
     // console.log(user_or_admin);

@@ -3,7 +3,6 @@ import Tasks from "../models/Tasks.js";
 import sendEmail from "../utils/sendEmail.js";
 import User from "../models/User.js";
 import { logActivity } from "../utils/logActivity.js";
-import client from "../config/redisClient.js";
 
 const createTask = async (req, res) => {
   try {
@@ -44,7 +43,9 @@ const createTask = async (req, res) => {
     const usersList = await User.find({
       _id: { $in: users },
       isDeleted: false,
-    }).select("name email");
+    })
+      .select("name email")
+      .lean();
 
     // Send email (non-blocking)
     usersList.forEach((user) => {
@@ -111,7 +112,7 @@ const getTask = async (req, res) => {
       filter.priority = priority;
     }
 
-    const tasks = await Tasks.find(filter);
+    const tasks = await Tasks.find(filter).lean();
 
     // await client.set(cacheKey, JSON.stringify(tasks), { EX: 180 });
     // console.log("FILTER USED 👉", filter);
@@ -131,11 +132,10 @@ const updateTask = async (req, res) => {
       return res.status(400).json({ message: "Invalid task ID" });
     }
 
-    // 1️⃣ Fetch existing task
-    const existingTask = await Tasks.findById(id).populate(
-      "assignedTo",
-      "name email",
-    );
+    // Fetch existing task
+    const existingTask = await Tasks.findById(id)
+      .populate("assignedTo", "name email")
+      .lean();
 
     if (!existingTask) {
       return res.status(404).json({ message: "Task not found" });
@@ -166,22 +166,22 @@ const updateTask = async (req, res) => {
 
     update.updateDate = Date.now();
 
-    // 3️⃣ Update task
+    // Update task
     const updatedTask = await Tasks.findByIdAndUpdate(
       id,
       { $set: update },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true, lean: true },
     );
 
     // console.log(updatedTask);
 
-    // 4️⃣ Detect changes
+    // Detect changes
     const statusChanged = req.body.status && req.body.status !== oldStatus;
 
     const priorityChanged =
       req.body.priority && req.body.priority !== oldPriority;
 
-    // 5️⃣ 🔥 Activity Logs
+    // 🔥 Activity Logs
     if (statusChanged || priorityChanged) {
       let changes = [];
       let metadata = {};
@@ -263,27 +263,29 @@ const postComment = async (req, res) => {
       return res.status(400).json({ message: "Comment is required" });
     }
 
-    const task = await Tasks.findById(id);
-    if (!task) {
+    const taskComment = await Tasks.findById(id).select("comments").lean();
+    if (!taskComment) {
       return res.status(404).json({ message: "Task not found" });
     }
 
     // 🔥 detect who is logged in (from bothAuth)
     const commenterModel = req.role === "admin" ? "Admin" : "User";
 
-    task.comments.push({
+    taskComment.push({
       userRef: req.userId,
       comment,
     });
 
-    await task.save();
+    await taskComment.save();
 
     // await task.populate("comments.commenter");
+
     // repopulate before sending
     const populated = await Tasks.findById(id)
       .populate("createdBy", "name email")
       .populate("assignedTo", "name email")
-      .populate("comments.userRef", "name email");
+      .populate("comments.userRef", "name email")
+      .lean();
     // console.log(task);
 
     // await client.del(`tasks:${req.userId}`);
@@ -308,7 +310,7 @@ const deleteTask = async (req, res) => {
     }
 
     // Fetch task BEFORE delete (important for logs)
-    const task = await Tasks.findById(id).populate("projectRef", "name");
+    const task = await Tasks.findById(id).populate("projectRef", "name").lean();
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }

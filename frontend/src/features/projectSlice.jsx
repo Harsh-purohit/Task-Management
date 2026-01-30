@@ -33,9 +33,9 @@ const projectsSlice = createSlice({
     },
 
     updateProject: (state, action) => {
-      const { id, name, description, status } = action.payload;
+      const { _id, name, description, status } = action.payload;
 
-      const project = state.projects.find((p) => p.id === id);
+      const project = state.projects.find((p) => p._id === _id);
 
       if (project) {
         project.name = name;
